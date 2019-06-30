@@ -5,6 +5,7 @@ const movieAdditionalQs = '&page=1&include_adult=false'
 const posterBaseUrl = 'https://image.tmdb.org/t/p/w500/'
 
 const songBaseUrl ='http://ws.audioscrobbler.com/2.0/?method=track.search&track='
+const songSearchUrl = 'http://ws.audioscrobbler.com/2.0/?method=track.getInfo'
 const songApiKey ='&api_key=5693fd68291fa577eff3066dbff9bbc2'
 const songAdditionalQs ='&format=json'
 
@@ -78,18 +79,42 @@ function fetchSongData(songData){
   })
   .then(function(responseJson){
     songData = responseJson
-    displayMusicData(songData)
+    songNum = songData.results.trackmatches.track[0].mbid
+    getSpecificSong(songNum)
+    console.log(songNum)
+    console.log(songData)
+  })
+}
+
+function getSpecificSong(songNum) {
+  songIdUrl = `${songSearchUrl}${songApiKey}&mbid=${songNum}${songAdditionalQs}`
+  console.log(songIdUrl)
+  fetch(songIdUrl)
+  .then(function(response){
+    return response.json()
+  })
+  .then(function(responseJson){
+    console.log(responseJson)
+    displayMusicData(responseJson)
   })
 }
 
 function displayMusicData(musicData){
-  console.log(musicData.results.trackmatches.track[0].artist)
-  console.log(musicData.results.trackmatches.track[0].name)
+  console.log(musicData.track.wiki.published)
+  musicImg = (musicData.track.album.image[3]["#text"])
+  displayMusicImage(musicImg)
+  console.log(musicImg)
+}
+
+function displayMusicImage(musicImgSrc) {
+  console.log(musicImgSrc)
+  $('#results-section').append(`<img src="${musicImgSrc}"</img>`)
 }
 
 function callHandles() {
   handleMovieSearch()
   handleSongSearch()
 }
+
 
 $(callHandles)
